@@ -4,6 +4,7 @@ use warnings;
 our $VERSION = '0.01';
 
 use IPC::Run qw/run/;
+use XML::LibXML;
 
 sub new {
     my $cls = shift;
@@ -44,6 +45,11 @@ sub replace_png8_by_base64 {
 
 }
 
+sub load_png8 {
+    my ($self, $file) = @_;
+
+
+}
 
 sub render_xml {
     my ($self, $params) = @_;
