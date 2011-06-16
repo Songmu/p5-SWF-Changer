@@ -11,6 +11,7 @@ use SWF::Builder::Bitmap::PNG8;
 sub new {
     my $cls = shift;
     my $self = ref $_[0] ? $_[0] : {@_};
+    $self->{swfmill_option} ||= [];
     bless $self, $cls;
     if ($self->{file}) {
         $self->load_file($self->{file});
@@ -34,7 +35,7 @@ sub render {
 
     my $xml = $self->render_xml($params);
     my $err;
-    run ['swfmill', @{$self->{_swfmill_option}}, qw/xml2swf stdin/], \$xml, \my $swf, \$err or die $err;
+    run ['swfmill', @{$self->{swfmill_option}}, qw/xml2swf stdin/], \$xml, \my $swf, \$err or die $err;
 
     $swf;
 }
@@ -61,7 +62,7 @@ sub replace_image_node {
     [[$node->nonBlankChildNodes]->[0]->nonBlankChildNodes]->[0]->firstChild->setData($img->base64);
 
     if ($img->can('n_colormap')){
-        $img->setAttribute(n_colormap => $img->n_colormap);
+        $node->setAttribute(n_colormap => $img->n_colormap);
     }
     else {
         $node->removeAttribute('n_colormap');
@@ -75,7 +76,7 @@ sub replace_image_node {
 sub load_png8 {
     my ($self, $file) = @_;
     $file = $self->material_path . $file;
-    SWF::Builder::Builder::PNG8->new($file);
+    SWF::Builder::Bitmap::PNG8->new($file);
 }
 
 sub render_xml {
