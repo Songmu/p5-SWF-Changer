@@ -5,6 +5,8 @@ our $VERSION = '0.01';
 
 use IPC::Run qw/run/;
 use XML::LibXML;
+use SWF::Builder::Bitmap::PNG;
+use SWF::Builder::Bitmap::PNG8;
 
 sub new {
     my $cls = shift;
@@ -39,15 +41,41 @@ sub render {
 
 sub replace_png8_by_base64 {
     my ($self, $base64_str, $file) = @_;
+    my $png8 = $self->load_png8($file);
 
+    my $dom = XML::LibXML->new->parse_string($self->content);
+    my @nodes = $dom->findnodes("//data[.='$base64_str']");
+    for my $node ( @nodes ){
+        $node = $node->parentNode->parentNode;
+        $self->replace_image_node($node, $png8);
+    }
 
+    $self->{content} = $dom->toString;
+}
 
+sub replace_image_node {
+    my ($self, $node, $img) = @_;
+
+    $node->setAttribute(format => $img->format);
+
+    [[$node->nonBlankChildNodes]->[0]->nonBlankChildNodes]->[0]->firstChild->setData($img->base64);
+
+    if ($img->can('n_colormap')){
+        $img->setAttribute(n_colormap => $img->n_colormap);
+    }
+    else {
+        $node->removeAttribute('n_colormap');
+    }
+
+    my $node_name = 'DefineBitsLossless';
+    $node_name .= '2' if $img->has_alpha;
+    $node->setNodeName($node_name);
 }
 
 sub load_png8 {
     my ($self, $file) = @_;
-
-
+    $file = $self->material_path . $file;
+    SWF::Builder::Builder::PNG8->new($file);
 }
 
 sub render_xml {
