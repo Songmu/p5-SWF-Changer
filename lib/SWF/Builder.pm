@@ -8,6 +8,10 @@ use XML::LibXML;
 use SWF::Builder::Bitmap::PNG;
 use SWF::Builder::Bitmap::PNG8;
 
+sub include_path    { shift->{include_path}  || ''}
+sub content         { shift->{content}       || ''}
+sub material_path   { shift->{material_path} || ''}
+
 sub new {
     my $cls = shift;
     my $self = ref $_[0] ? $_[0] : {@_};
@@ -54,6 +58,19 @@ sub replace_png8_by_base64 {
     $self->{content} = $dom->toString;
 }
 
+sub replace_png8_by_name {
+    my ($self, $name, $file) = @_;
+    my $png8 = $self->load_png8($file);
+
+    my $dom = XML::LibXML->new->parse_string($self->content);
+    my @nodes = $dom->findnodes("//PlaceObject2[\@name='$name']");
+    for my $node ( @nodes ){
+        $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBitsLossless/;
+        $self->replace_image_node($node, $png8);
+    }
+    $self->{content} = $dom->toString;
+}
+
 sub replace_image_node {
     my ($self, $node, $img) = @_;
 
@@ -91,17 +108,7 @@ sub render_xml {
     $xml;
 }
 
-sub include_path {
-    shift->{include_path} || '';
-}
 
-sub content {
-    shift->{content};
-}
-
-sub material_path {
-    shift->{material_path} || '';
-}
 
 1;
 __END__
