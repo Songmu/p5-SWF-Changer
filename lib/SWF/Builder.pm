@@ -120,6 +120,15 @@ SWF::Builder -
 =head1 SYNOPSIS
 
   use SWF::Builder;
+  my $swf = SWF::Builder->new(
+    swfmill_option => [qw/-e cp932/],
+    file           => 'swf.xml'
+  );
+  $swf->replace_png8_by_base64('eNrtwQEBAAAIwyD7l54VHgCoDgAAAAAAAAAAADYPGNQC/g==', '2.png');
+  $swf->replace_png8_by_name('CHARACTER', '2.png');
+  binmode STDOUT;
+  print $swf->render({ hoge => 'fuga'});
+
 
 =head1 DESCRIPTION
 
