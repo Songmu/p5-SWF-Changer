@@ -18,8 +18,7 @@ sub new {
 
 sub load_file {
     my ($self, $file) = @_;
-    my $file = $self->include_path . $file;
-
+    $file = $self->include_path . $file;
     $self->{content} = do {
         local $/;
         open my $fh,'<',$file or die "can't open file: $file $!";
