@@ -2,6 +2,8 @@ use inc::Module::Install;
 name 'SWF-Builder';
 all_from 'lib/SWF/Builder.pm';
 
+res_external_bin 'swfmill';
+
 requires 'IPC::Run';
 requires 'XML::LibXML';
 requires 'Imager';
