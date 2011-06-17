@@ -34,6 +34,16 @@ sub load_file {
     $self;
 }
 
+sub load_swf {
+    my ($self, $swf_file) = @_;
+    $swf_file = $self->include_path . $swf_file;
+    my $err;
+    run ['swfmill', @{$self->{swfmill_option}}, 'swf2xml', $swf_file], \my $in, \my $xml, \$err or die $err;
+
+    $self->{content} = $xml;
+    $self;
+}
+
 sub render {
     my ($self, $params) = @_;
 
@@ -53,6 +63,7 @@ sub replace_png8_by_base64 {
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self->{content} = $dom->toString;
+    $self;
 }
 
 sub replace_png8_by_name {
@@ -64,6 +75,7 @@ sub replace_png8_by_name {
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self->{content} = $dom->toString;
+    $self;
 }
 
 sub replace_png_by_base64 {
@@ -75,6 +87,7 @@ sub replace_png_by_base64 {
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self->{content} = $dom->toString;
+    $self;
 }
 
 sub replace_png_by_name {
@@ -86,6 +99,7 @@ sub replace_png_by_name {
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self->{content} = $dom->toString;
+    $self;
 }
 
 sub _find_image_nodes_by_base64 {
