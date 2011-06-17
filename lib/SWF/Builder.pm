@@ -164,6 +164,10 @@ sub _render_xml {
     $xml;
 }
 
+sub process {
+    my ($self, $file, $params) = @_;
+    $self->load_file($file)->render($params);
+}
 
 1;
 __END__
