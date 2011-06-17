@@ -5,6 +5,8 @@ use warnings;
 use parent 'SWF::Builder::Bitmap';
 use Compress::Zlib qw/compress/;
 
+sub n_colormap { shift->{n_colormap} || undef }
+
 sub new {
     my $cls = shift;
     my $self = $cls->SUPER::new(@_);
@@ -51,6 +53,7 @@ sub build {
         }
         $pixel_data .= chr($color_pallet_map{$key});
     }}
+    die 'not png8.' if @color_pallet > 256;
     push @color_pallet, {
         alpha   => 255,
         red     => 0,
@@ -75,10 +78,6 @@ sub build {
     $self->{n_colormap} = $#color_pallet;
     $self->{code} = $self->has_alpha ? 36 : 20;
     $self;
-}
-
-sub n_colormap {
-    shift->{n_colormap} || undef;
 }
 
 1;

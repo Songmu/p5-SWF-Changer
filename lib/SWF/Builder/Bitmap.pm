@@ -6,27 +6,16 @@ our $VERSION = '0.01';
 use Imager;
 use MIME::Base64 qw/encode_base64/;
 
+sub content     { shift->{content}   || '' }
+sub code        { shift->{code}      || undef }
+sub format      { shift->{format}    || undef }
+sub has_alpha   { shift->{has_alpha} || undef }
+
 sub new {
     my ($cls, $image_file) = @_;
     my $self = {};
     $self->{image_file} = $image_file;
     bless $self, $cls;
-}
-
-sub content {
-    shift->{content} || undef;
-}
-
-sub code {
-    shift->{code} || undef;
-}
-
-sub format {
-    shift->{format} || undef;
-}
-
-sub has_alpha {
-    shift->{has_alpha} || undef;
 }
 
 sub base64 {
