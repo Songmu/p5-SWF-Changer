@@ -1,6 +1,8 @@
 package SWF::Builder;
 use strict;
 use warnings;
+use utf8;
+use 5.00800;
 our $VERSION = '0.01';
 
 use File::Spec;
@@ -9,9 +11,9 @@ use XML::LibXML;
 use SWF::Builder::Bitmap::PNG;
 use SWF::Builder::Bitmap::PNG8;
 
-sub include_path    { shift->{include_path}     || ''}
+sub include_path    { shift->{include_path}     || '.'}
 sub content         { shift->{content}          || ''}
-sub material_path   { shift->{material_path}    || ''}
+sub material_path   { shift->{material_path}    || '.'}
 sub default_params  { shift->{default_params}   || {} }
 
 sub new {
@@ -30,7 +32,7 @@ sub load_file {
     $file = File::Spec->catfile($self->include_path, $file);
     $self->{content} = do {
         local $/;
-        open my $fh,'<',$file or die "can't open file: $file $!";
+        open my $fh,'<:utf8',$file or die "can't open file: $file $!";
         <$fh>;
     };
     $self;
@@ -42,6 +44,7 @@ sub load_swf {
     my $err;
     run ['swfmill', @{$self->{swfmill_option}}, 'swf2xml', $swf_file], \my $in, \my $xml, \$err or die $err;
 
+    utf8::decode($xml);
     $self->{content} = $xml;
     $self;
 }
@@ -53,6 +56,7 @@ sub render {
         %$params,
     };
     my $xml = $self->_render_xml($render_params);
+    utf8::encode($xml);
     my $err;
     run ['swfmill', @{$self->{swfmill_option}}, qw/xml2swf stdin/], \$xml, \my $swf, \$err or die $err;
 
