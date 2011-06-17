@@ -37,7 +37,7 @@ sub load_file {
 sub render {
     my ($self, $params) = @_;
 
-    my $xml = $self->render_xml($params);
+    my $xml = $self->_render_xml($params);
     my $err;
     run ['swfmill', @{$self->{swfmill_option}}, qw/xml2swf stdin/], \$xml, \my $swf, \$err or die $err;
 
@@ -46,32 +46,68 @@ sub render {
 
 sub replace_png8_by_base64 {
     my ($self, $base64_str, $file) = @_;
-    my $png8 = $self->load_png8($file);
+    my $png8 = $self->_load_png8($file);
 
     my $dom = XML::LibXML->new->parse_string($self->content);
-    my @nodes = $dom->findnodes("//data[.='$base64_str']");
-    for my $node ( @nodes ){
-        $node = $node->parentNode->parentNode;
-        $self->replace_image_node($node, $png8);
-    }
+    my @nodes = $self->_find_image_nodes_by_base64($dom, $base64_str);
+    $self->_replace_image_node($_, $png8) for @nodes;
 
     $self->{content} = $dom->toString;
 }
 
 sub replace_png8_by_name {
     my ($self, $name, $file) = @_;
-    my $png8 = $self->load_png8($file);
+    my $png8 = $self->_load_png8($file);
 
     my $dom = XML::LibXML->new->parse_string($self->content);
-    my @nodes = $dom->findnodes("//PlaceObject2[\@name='$name']");
-    for my $node ( @nodes ){
-        $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBitsLossless/;
-        $self->replace_image_node($node, $png8);
-    }
+    my @nodes = $self->_find_image_nodes_by_name($dom, $name);
+    $self->_replace_image_node($_, $png8) for @nodes;
+
     $self->{content} = $dom->toString;
 }
 
-sub replace_image_node {
+sub replace_png_by_base64 {
+    my ($self, $base64_str, $file) = @_;
+    my $png8 = $self->_load_png($file);
+
+    my $dom = XML::LibXML->new->parse_string($self->content);
+    my @nodes = $self->_find_image_nodes_by_base64($dom, $base64_str);
+    $self->_replace_image_node($_, $png8) for @nodes;
+
+    $self->{content} = $dom->toString;
+}
+
+sub replace_png_by_name {
+    my ($self, $name, $file) = @_;
+    my $png8 = $self->_load_png($file);
+
+    my $dom = XML::LibXML->new->parse_string($self->content);
+    my @nodes = $self->_find_image_nodes_by_name($dom, $name);
+    $self->_replace_image_node($_, $png8) for @nodes;
+
+    $self->{content} = $dom->toString;
+}
+
+sub _find_image_nodes_by_base64 {
+    my ($self, $dom, $base64_str) = @_;
+    my @nodes = $dom->findnodes("//data[.='$base64_str']");
+    my @result_nodes;
+    push @result_nodes, $_->parentNode->parentNode for @nodes;
+    @result_nodes;
+}
+
+sub _find_image_nodes_by_name {
+    my ($self, $dom, $name) = @_;
+    my @result_nodes;
+    my @nodes = $dom->findnodes("//PlaceObject2[\@name='$name']");
+    for my $node ( @nodes ){
+        $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBitsLossless/;
+        push @result_nodes, $node;
+    }
+    @result_nodes;
+}
+
+sub _replace_image_node {
     my ($self, $node, $img) = @_;
 
     $node->setAttribute(format => $img->format);
@@ -90,13 +126,19 @@ sub replace_image_node {
     $node->setNodeName($node_name);
 }
 
-sub load_png8 {
+sub _load_png8 {
     my ($self, $file) = @_;
     $file = $self->material_path . $file;
     SWF::Builder::Bitmap::PNG8->new($file);
 }
 
-sub render_xml {
+sub _load_png {
+    my ($self, $file) = @_;
+    $file = $self->material_path . $file;
+    SWF::Builder::Bitmap::PNG->new($file);
+}
+
+sub _render_xml {
     my ($self, $params) = @_;
     my $xml = $self->content;
 
@@ -107,7 +149,6 @@ sub render_xml {
     }
     $xml;
 }
-
 
 
 1;
