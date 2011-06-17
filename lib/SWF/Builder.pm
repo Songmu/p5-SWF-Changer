@@ -12,7 +12,6 @@ use SWF::Builder::Bitmap::PNG;
 use SWF::Builder::Bitmap::PNG8;
 
 sub include_path    { shift->{include_path}     || '.'}
-sub content         { shift->{content}          || ''}
 sub material_path   { shift->{material_path}    || '.'}
 sub default_params  { shift->{default_params}   || {} }
 
@@ -27,14 +26,41 @@ sub new {
     $self;
 }
 
+sub dom {
+    my $self = shift;
+    unless ($self->{_dom}){
+        $self->{_dom} = XML::LibXML->new->parse_string($self->content);
+        delete $self->{_content};
+    }
+    $self->{_dom};
+}
+
+sub content {
+    my ($self, $content) = @_;
+    if (defined $content){
+        utf8::decode($content) unless utf8::is_utf8($content);
+        $self->{_content} = $content;
+        delete $self->{_dom};
+        $self;
+    }
+    elsif ($self->{_dom}){
+        my $content = $self->dom->toString;
+        utf8::decode($content) unless utf8::is_utf8($content);
+        $content;
+    }
+    else {
+        $self->{_content} || '';
+    }
+}
+
 sub load_file {
     my ($self, $file) = @_;
     $file = File::Spec->catfile($self->include_path, $file);
-    $self->{content} = do {
+    $self->content(do {
         local $/;
         open my $fh,'<:utf8',$file or die "can't open file: $file $!";
         <$fh>;
-    };
+    });
     $self;
 }
 
@@ -45,7 +71,7 @@ sub load_swf {
     run ['swfmill', @{$self->{swfmill_option}}, 'swf2xml', $swf_file], \my $in, \my $xml, \$err or die $err;
 
     utf8::decode($xml);
-    $self->{content} = $xml;
+    $self->content($xml);
     $self;
 }
 
@@ -67,11 +93,9 @@ sub replace_png8_by_base64 {
     my ($self, $base64_str, $file) = @_;
     my $png8 = $self->_load_png8($file);
 
-    my $dom = XML::LibXML->new->parse_string($self->content);
+    my $dom = $self->dom;
     my @nodes = $self->_find_image_nodes_by_base64($dom, $base64_str);
     $self->_replace_image_node($_, $png8) for @nodes;
-
-    $self->{content} = $dom->toString;
     $self;
 }
 
@@ -79,11 +103,10 @@ sub replace_png8_by_name {
     my ($self, $name, $file) = @_;
     my $png8 = $self->_load_png8($file);
 
-    my $dom = XML::LibXML->new->parse_string($self->content);
+    my $dom = $self->dom;
     my @nodes = $self->_find_image_nodes_by_name($dom, $name);
     $self->_replace_image_node($_, $png8) for @nodes;
 
-    $self->{content} = $dom->toString;
     $self;
 }
 
@@ -91,11 +114,10 @@ sub replace_png_by_base64 {
     my ($self, $base64_str, $file) = @_;
     my $png8 = $self->_load_png($file);
 
-    my $dom = XML::LibXML->new->parse_string($self->content);
+    my $dom = $self->dom;
     my @nodes = $self->_find_image_nodes_by_base64($dom, $base64_str);
     $self->_replace_image_node($_, $png8) for @nodes;
 
-    $self->{content} = $dom->toString;
     $self;
 }
 
@@ -107,7 +129,6 @@ sub replace_png_by_name {
     my @nodes = $self->_find_image_nodes_by_name($dom, $name);
     $self->_replace_image_node($_, $png8) for @nodes;
 
-    $self->{content} = $dom->toString;
     $self;
 }
 
