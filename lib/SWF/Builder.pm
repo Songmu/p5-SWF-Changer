@@ -3,6 +3,7 @@ use strict;
 use warnings;
 our $VERSION = '0.01';
 
+use File::Spec;
 use IPC::Run qw/run/;
 use XML::LibXML;
 use SWF::Builder::Bitmap::PNG;
@@ -25,7 +26,7 @@ sub new {
 
 sub load_file {
     my ($self, $file) = @_;
-    $file = $self->include_path . $file;
+    $file = File::Spec->catfile($self->include_path, $file);
     $self->{content} = do {
         local $/;
         open my $fh,'<',$file or die "can't open file: $file $!";
@@ -36,7 +37,7 @@ sub load_file {
 
 sub load_swf {
     my ($self, $swf_file) = @_;
-    $swf_file = $self->include_path . $swf_file;
+    $swf_file = File::Spec->catfile($self->include_path, $swf_file);
     my $err;
     run ['swfmill', @{$self->{swfmill_option}}, 'swf2xml', $swf_file], \my $in, \my $xml, \$err or die $err;
 
@@ -142,13 +143,13 @@ sub _replace_image_node {
 
 sub _load_png8 {
     my ($self, $file) = @_;
-    $file = $self->material_path . $file;
+    $file = File::Spec->catfile($self->material_path, $file);
     SWF::Builder::Bitmap::PNG8->new($file);
 }
 
 sub _load_png {
     my ($self, $file) = @_;
-    $file = $self->material_path . $file;
+    $file = File::Spec->catfile($self->material_path, $file);
     SWF::Builder::Bitmap::PNG->new($file);
 }
 
