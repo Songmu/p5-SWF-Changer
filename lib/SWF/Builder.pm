@@ -9,9 +9,10 @@ use XML::LibXML;
 use SWF::Builder::Bitmap::PNG;
 use SWF::Builder::Bitmap::PNG8;
 
-sub include_path    { shift->{include_path}  || ''}
-sub content         { shift->{content}       || ''}
-sub material_path   { shift->{material_path} || ''}
+sub include_path    { shift->{include_path}     || ''}
+sub content         { shift->{content}          || ''}
+sub material_path   { shift->{material_path}    || ''}
+sub default_params  { shift->{default_params}   || {} }
 
 sub new {
     my $cls = shift;
@@ -47,8 +48,11 @@ sub load_swf {
 
 sub render {
     my ($self, $params) = @_;
-
-    my $xml = $self->_render_xml($params);
+    my $render_params = {
+        %{ $self->default_params },
+        %$params,
+    };
+    my $xml = $self->_render_xml($render_params);
     my $err;
     run ['swfmill', @{$self->{swfmill_option}}, qw/xml2swf stdin/], \$xml, \my $swf, \$err or die $err;
 
