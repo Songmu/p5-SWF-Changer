@@ -93,8 +93,7 @@ sub replace_png8_by_base64 {
     my ($self, $base64_str, $file) = @_;
     my $png8 = $self->_load_png8($file);
 
-    my $dom = $self->dom;
-    my @nodes = $self->_find_image_nodes_by_base64($dom, $base64_str);
+    my @nodes = $self->_find_image_nodes_by_base64($base64_str);
     $self->_replace_image_node($_, $png8) for @nodes;
     $self;
 }
@@ -103,8 +102,7 @@ sub replace_png8_by_name {
     my ($self, $name, $file) = @_;
     my $png8 = $self->_load_png8($file);
 
-    my $dom = $self->dom;
-    my @nodes = $self->_find_image_nodes_by_name($dom, $name);
+    my @nodes = $self->_find_image_nodes_by_name($name);
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self;
@@ -114,8 +112,7 @@ sub replace_png_by_base64 {
     my ($self, $base64_str, $file) = @_;
     my $png8 = $self->_load_png($file);
 
-    my $dom = $self->dom;
-    my @nodes = $self->_find_image_nodes_by_base64($dom, $base64_str);
+    my @nodes = $self->_find_image_nodes_by_base64($base64_str);
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self;
@@ -125,25 +122,24 @@ sub replace_png_by_name {
     my ($self, $name, $file) = @_;
     my $png8 = $self->_load_png($file);
 
-    my $dom = XML::LibXML->new->parse_string($self->content);
-    my @nodes = $self->_find_image_nodes_by_name($dom, $name);
+    my @nodes = $self->_find_image_nodes_by_name($name);
     $self->_replace_image_node($_, $png8) for @nodes;
 
     $self;
 }
 
 sub _find_image_nodes_by_base64 {
-    my ($self, $dom, $base64_str) = @_;
-    my @nodes = $dom->findnodes("//data[.='$base64_str']");
+    my ($self, $base64_str) = @_;
+    my @nodes = $self->dom->findnodes("//data[.='$base64_str']");
     my @result_nodes;
     push @result_nodes, $_->parentNode->parentNode for @nodes;
     @result_nodes;
 }
 
 sub _find_image_nodes_by_name {
-    my ($self, $dom, $name) = @_;
+    my ($self, $name) = @_;
     my @result_nodes;
-    my @nodes = $dom->findnodes("//PlaceObject2[\@name='$name']");
+    my @nodes = $self->dom->findnodes("//PlaceObject2[\@name='$name']");
     for my $node ( @nodes ){
         $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBitsLossless/;
         push @result_nodes, $node;
@@ -155,7 +151,6 @@ sub _replace_image_node {
     my ($self, $node, $img) = @_;
 
     $node->setAttribute(format => $img->format);
-
     [[$node->nonBlankChildNodes]->[0]->nonBlankChildNodes]->[0]->firstChild->setData($img->base64);
 
     if ($img->can('n_colormap')){
