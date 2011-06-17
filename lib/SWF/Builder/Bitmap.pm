@@ -28,15 +28,15 @@ __END__
 
 =head1 NAME
 
-SWF::Generator::Bitmap -
+SWF::Builder::Bitmap -
 
 =head1 SYNOPSIS
 
-  use SWF::Generator::Bitmap;
+  use SWF::Builder::Bitmap;
 
 =head1 DESCRIPTION
 
-SWF::Generator::Bitmap is
+SWF::Builder::Bitmap is
 
 =head1 AUTHOR
 
