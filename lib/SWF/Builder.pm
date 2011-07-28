@@ -141,7 +141,7 @@ sub _find_image_nodes_by_name {
     my @result_nodes;
     my @nodes = $self->dom->findnodes("//PlaceObject2[\@name='$name']");
     for my $node ( @nodes ){
-        $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBitsLossless/;
+        $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBits/;
         push @result_nodes, $node;
     }
     @result_nodes;
@@ -151,7 +151,7 @@ sub _replace_image_node {
     my ($self, $node, $img) = @_;
 
     $node->setAttribute(format => $img->format);
-    [[$node->nonBlankChildNodes]->[0]->nonBlankChildNodes]->[0]->firstChild->setData($img->base64);
+    +(+($node->nonBlankChildNodes)[0]->nonBlankChildNodes)[0]->firstChild->setData($img->base64);
 
     if ($img->can('n_colormap')){
         $node->setAttribute(n_colormap => $img->n_colormap);
