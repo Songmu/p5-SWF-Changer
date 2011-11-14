@@ -1,8 +1,8 @@
-package SWF::Builder::Bitmap::PNG;
+package SWF::Changer::Bitmap::PNG;
 use strict;
 use warnings;
 
-use parent 'SWF::Builder::Bitmap';
+use parent 'SWF::Changer::Bitmap';
 use Math::Round qw/round/;
 use Compress::Zlib qw/compress/;
 

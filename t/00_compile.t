@@ -1,4 +1,4 @@
 use strict;
 use Test::More tests => 1;
 
-BEGIN { use_ok 'SWF::Builder' }
+BEGIN { use_ok 'SWF::Changer' }

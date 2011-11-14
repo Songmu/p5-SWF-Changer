@@ -1,4 +1,4 @@
-package SWF::Builder::Bitmap;
+package SWF::Changer::Bitmap;
 use strict;
 use warnings;
 our $VERSION = '0.01';
@@ -28,15 +28,15 @@ __END__
 
 =head1 NAME
 
-SWF::Builder::Bitmap -
+SWF::Changer::Bitmap -
 
 =head1 SYNOPSIS
 
-  use SWF::Builder::Bitmap;
+  use SWF::Changer::Bitmap;
 
 =head1 DESCRIPTION
 
-SWF::Builder::Bitmap is
+SWF::Changer::Bitmap is
 
 =head1 AUTHOR
 

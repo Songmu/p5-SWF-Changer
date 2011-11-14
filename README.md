@@ -1,11 +1,11 @@
-# This is Perl module SWF::Builder.
+# This is Perl module SWF::Changer.
 
 ## INSTALLATION
 
-SWF::Builder installation is straightforward. If your CPAN shell is set up,
+SWF::Changer installation is straightforward. If your CPAN shell is set up,
 you should just be able to do
 
-    % cpan SWF::Builder
+    % cpan SWF::Changer
 
 ## Download it, unpack it, then build it as per the usual:
 
@@ -18,9 +18,9 @@ you should just be able to do
 
 ## DOCUMENTATION
 
-SWF::Builder documentation is available as in POD. So you can do:
+SWF::Changer documentation is available as in POD. So you can do:
 
-    % perldoc SWF::Builder
+    % perldoc SWF::Changer
 
 to read the documentation online with your favorite pager.
 

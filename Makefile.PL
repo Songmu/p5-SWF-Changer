@@ -1,6 +1,6 @@
 use inc::Module::Install;
-name 'SWF-Builder';
-all_from 'lib/SWF/Builder.pm';
+name 'SWF-Changer';
+all_from 'lib/SWF/Changer.pm';
 
 res_external_bin 'swfmill';
 

@@ -1,8 +1,8 @@
-package SWF::Builder::Bitmap::PNG8;
+package SWF::Changer::Bitmap::PNG8;
 use strict;
 use warnings;
 
-use parent 'SWF::Builder::Bitmap';
+use parent 'SWF::Changer::Bitmap';
 use Compress::Zlib qw/compress/;
 
 sub n_colormap { shift->{n_colormap} || undef }

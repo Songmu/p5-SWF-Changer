@@ -1,4 +1,4 @@
-package SWF::Builder;
+package SWF::Changer;
 use strict;
 use warnings;
 use utf8;
@@ -8,8 +8,8 @@ our $VERSION = '0.01';
 use File::Spec;
 use IPC::Run qw/run/;
 use XML::LibXML;
-use SWF::Builder::Bitmap::PNG;
-use SWF::Builder::Bitmap::PNG8;
+use SWF::Changer::Bitmap::PNG;
+use SWF::Changer::Bitmap::PNG8;
 
 sub include_path    { shift->{include_path}     || '.'}
 sub material_path   { shift->{material_path}    || '.'}
@@ -168,13 +168,13 @@ sub _replace_image_node {
 sub _load_png8 {
     my ($self, $file) = @_;
     $file = File::Spec->catfile($self->material_path, $file);
-    SWF::Builder::Bitmap::PNG8->new($file);
+    SWF::Changer::Bitmap::PNG8->new($file);
 }
 
 sub _load_png {
     my ($self, $file) = @_;
     $file = File::Spec->catfile($self->material_path, $file);
-    SWF::Builder::Bitmap::PNG->new($file);
+    SWF::Changer::Bitmap::PNG->new($file);
 }
 
 sub _render_xml {
@@ -199,12 +199,12 @@ __END__
 
 =head1 NAME
 
-SWF::Builder -
+SWF::Changer -
 
 =head1 SYNOPSIS
 
-  use SWF::Builder;
-  my $swf = SWF::Builder->new(
+  use SWF::Changer;
+  my $swf = SWF::Changer->new(
     swfmill_option => [qw/-e cp932/],
     file           => 'swf.xml'
   );
@@ -216,7 +216,7 @@ SWF::Builder -
 
 =head1 DESCRIPTION
 
-SWF::Builder is
+SWF::Changer is
 
 =head1 AUTHOR
 
