@@ -192,7 +192,7 @@ sub _render_xml {
 sub replace_colors {
     my ($self, @colors) = @_;
 
-    @colors = @{$_[0]} if @colors == 1;
+    @colors = @{$colors[0]} if @colors == 1;
 
     my $content = $self->content;
     while (@colors) {
