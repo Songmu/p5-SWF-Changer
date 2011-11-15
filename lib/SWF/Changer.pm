@@ -189,6 +189,38 @@ sub _render_xml {
     $xml;
 }
 
+sub replace_colors {
+    my ($self, @colors) = @_;
+
+    @colors = @{$_[0]} if @colors == 1;
+
+    my $content = $self->content;
+    while (@colors) {
+        my ($from_color, $to_color) = splice @colors, 0, 2;
+        my $from_str = quotemeta _parse_rgb($from_color);
+        my $to_str   = _parse_rgb($to_color);
+        $content =~ s/$from_str/$to_str/g;
+    }
+    $self->content($content);
+    $self;
+}
+
+sub _parse_rgb {
+    my $str = shift;
+
+    my ($red, $green, $blue) = _get_rgb($str);
+    sprintf 'red="%s" green="%s" blue="%s"', $red, $green, $blue;
+}
+
+
+sub _get_rgb {
+    my $str = shift;
+
+    $str =~ s/^#//;
+    map {hex($_)} $str =~ /^(..)(..)(..)$/;
+}
+
+
 sub process {
     my ($self, $file, $params) = @_;
     $self->load_file($file)->render($params);
