@@ -141,8 +141,8 @@ sub _find_image_nodes_by_name {
     my @result_nodes;
     my @nodes = $self->dom->findnodes("//PlaceObject2[\@name='$name']");
     for my $node ( @nodes ){
-        $node = $node->previousNonBlankSibling until $node->nodeName =~ /^DefineBits/;
-        push @result_nodes, $node;
+        $node = $node->previousNonBlankSibling while $node && $node->nodeName !~ /^DefineBits/;
+        push @result_nodes, $node if $node;
     }
     @result_nodes;
 }
