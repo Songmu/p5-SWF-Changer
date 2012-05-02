@@ -30,19 +30,20 @@ sub build {
     my $pixel_data = '';
     for my $y (0..($height-1)){ for my $x (0..($width-1)){
         my @rgba = $imager->getpixel(x => $x, y => $y)->rgba;
-        my $key = join ',', @rgba;
         my ($red, $green, $blue, $alpha) = @rgba;
 
+        if ($alpha == 0) {
+            $self->{has_alpha} = 1;
+            $red   = 0;
+            $green = 0;
+            $blue  = 0;
+        }
+        else {
+            $alpha = 255;
+        }
+        my $key = join ',', $red, $green, $blue, $alpha;
+
         unless (defined $color_pallet_map{$key}){
-            if ($alpha == 0) {
-                $self->{has_alpha} = 1;
-                $red   = 0;
-                $green = 0;
-                $blue  = 0;
-            }
-            else {
-                $alpha = 255;
-            }
             push @color_pallet, {
                 alpha   => $alpha,
                 red     => $red,
